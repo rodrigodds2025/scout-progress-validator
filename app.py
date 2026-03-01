@@ -19,9 +19,7 @@ st.set_page_config(
 # CSS customizado
 st.markdown("""
 <style>
-    .main {
-        padding: 2rem;
-    }
+    .main {padding: 2rem;}
     .stButton>button {
         width: 100%;
         background-color: #4472C4;
@@ -30,22 +28,16 @@ st.markdown("""
         padding: 0.75rem;
         border-radius: 0.5rem;
     }
-    .stButton>button:hover {
-        background-color: #2952A3;
-    }
-    h1 {
-        color: #4472C4;
-        text-align: center;
-    }
+    .stButton>button:hover {background-color: #2952A3;}
+    h1 {color: #4472C4; text-align: center;}
 </style>
 """, unsafe_allow_html=True)
 
-# Título
-st.markdown("# 🏕️ Scout Progress Validator")
+st.markdown("# 🏕️ Scout Progress Validator v3.0")
 st.markdown("### Sistema de Validação de Progressões Escoteiras")
 st.markdown("---")
 
-# Inicializar session state
+# Session state
 if 'processed' not in st.session_state:
     st.session_state.processed = False
 if 'excel_data' not in st.session_state:
@@ -56,199 +48,148 @@ if 'filename' not in st.session_state:
     st.session_state.filename = None
 
 def preprocess_image(image):
-    """Pré-processa a imagem para melhorar o OCR"""
-    # Converter PIL para OpenCV
+    """Pré-processa imagem para OCR"""
     img = np.array(image)
     
-    # Converter para escala de cinza
     if len(img.shape) == 3:
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     else:
         gray = img
     
-    # Aumentar contraste
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
     enhanced = clahe.apply(gray)
     
-    # Reduzir ruído
     denoised = cv2.fastNlMeansDenoising(enhanced, None, 10, 7, 21)
     
-    # Binarização adaptativa (melhor para documentos)
     binary = cv2.adaptiveThreshold(
         denoised, 255, 
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
         cv2.THRESH_BINARY, 11, 2
     )
     
-    # Dilatar levemente para conectar caracteres
     kernel = np.ones((1,1), np.uint8)
     dilated = cv2.dilate(binary, kernel, iterations=1)
     
-    # Converter de volta para PIL
-    processed_img = Image.fromarray(dilated)
-    
-    return processed_img
+    return Image.fromarray(dilated)
 
-def extract_text_from_image(image, show_preview=False):
-    """Extrai texto da imagem usando Tesseract otimizado"""
-    
-    # Pré-processar imagem
+def extract_text_from_image(image):
+    """Extrai texto com Tesseract otimizado"""
     processed_img = preprocess_image(image)
-    
-    # Mostrar preview da imagem processada (opcional)
-    if show_preview:
-        st.image(processed_img, caption="Imagem processada", width=300)
-    
-    # Configuração customizada do Tesseract
     custom_config = r'--oem 3 --psm 6 -l por'
-    # OEM 3 = Default, based on what is available
-    # PSM 6 = Assume a single uniform block of text
-    # -l por = Idioma português
-    
-    # Extrair texto
     text = pytesseract.image_to_string(processed_img, config=custom_config)
-    
-    # Pós-processamento do texto
-    text = post_process_text(text)
-    
-    return text
+    return post_process_text(text)
 
 def post_process_text(text):
-    """Limpa e corrige erros comuns do OCR"""
+    """Limpa texto extraído"""
+    # Remover símbolos estranhos do OCR
+    text = re.sub(r'\b(IS\)|SA\)|O\)|há|q|v|Y|GQ|\[AN|FEZ\)|EO|\[SG\]|G,\)|1S,\)|1S4\)|S,\)|OQ)\b', '', text)
+    text = re.sub(r'[«»""]', '', text)
     
-    # Correções comuns de OCR
+    # Correções comuns
     corrections = {
         'partcpar': 'participar',
         'atvdades': 'atividades',
         'patruha': 'patrulha',
-        'Patuha': 'Patrulha',
-        'organzar': 'organizar',
-        'constr': 'construir',
-        'acampamento': 'acampamento',
-        'Escotera': 'Escoteira',
-        'Escotero': 'Escoteiro',
-        'ogresstio': 'Progressão',
-        'progresséo': 'Progressão',
-        'Primeios': 'Primeiros',
-        'Socotos': 'Socorros',
-        'Cates': 'Caixa',
-        'pata': 'patrulha',
-        'Tops': 'Tropa',
-        'Topa': 'Tropa',
-        'trofa': 'tropa',
+        'construiruir': 'construir',
+        'cansertados': 'consertados',
+        'Escotsmo': 'Escotismo',
+        'escateira': 'escoteira',
     }
     
     for wrong, correct in corrections.items():
         text = re.sub(wrong, correct, text, flags=re.IGNORECASE)
     
-    # Limpar espaços extras
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r'\n\s*\n', '\n', text)
     
     return text
 
 def identify_areas(text):
-    """Identifica áreas de desenvolvimento e separa itens"""
-    areas = {
-        "Físico": {"concluidas": [], "pendentes": []},
-        "Intelectual": {"concluidas": [], "pendentes": []},
-        "Caráter": {"concluidas": [], "pendentes": []},
-        "Afetivo": {"concluidas": [], "pendentes": []},
-        "Social": {"concluidas": [], "pendentes": []},
-        "Espiritual": {"concluidas": [], "pendentes": []}
+    """Identifica e processa áreas de desenvolvimento"""
+    areas_raw = {
+        "Físico": [],
+        "Intelectual": [],
+        "Caráter": [],
+        "Afetivo": [],
+        "Social": [],
+        "Espiritual": []
     }
     
-    lines = text.split('\n')
-    current_area = "Físico"
-    item_buffer = []
+    # Dividir por áreas
+    partes = re.split(r'Desenvolvimento\s+(Físico|Intelectual|do\s+Caráter|Afetivo|Social|Espiritual)', 
+                      text, flags=re.IGNORECASE)
     
-    # Padrões melhorados
-    area_keywords = {
-        'Físico': r'(f[ií]sico|desenvolvimento\s+f[ií]sico)',
-        'Intelectual': r'(intelectual|desenvolvimento\s+intelectual)',
-        'Caráter': r'(car[áa]ter|desenvolvimento\s+do\s+car[áa]ter)',
-        'Afetivo': r'(afetivo|desenvolvimento\s+afetivo)',
-        'Social': r'(social|desenvolvimento\s+social)',
-        'Espiritual': r'(espiritual|desenvolvimento\s+espiritual)'
+    area_map = {
+        'Físico': 'Físico',
+        'Intelectual': 'Intelectual',
+        'do Caráter': 'Caráter',
+        'Afetivo': 'Afetivo',
+        'Social': 'Social',
+        'Espiritual': 'Espiritual'
     }
     
-    item_pattern = re.compile(r'^\s*(\d+)\s*[-\.\):]')
-    date_pattern = re.compile(r'\b\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4}\b')
-    
-    for line in lines:
-        line = line.strip()
-        if not line or len(line) < 3:
+    current_area = None
+    for i, parte in enumerate(partes):
+        parte_clean = parte.strip()
+        
+        if parte_clean in area_map:
+            current_area = area_map[parte_clean]
             continue
         
-        # Detectar mudança de área
-        area_changed = False
-        for area_name, pattern in area_keywords.items():
-            if re.search(pattern, line, re.IGNORECASE):
-                # Processar item anterior antes de mudar de área
-                if item_buffer:
-                    process_item_buffer(item_buffer, current_area, areas)
-                    item_buffer = []
-                
-                current_area = area_name
-                area_changed = True
-                break
-        
-        if area_changed:
-            continue
-        
-        # Detectar início de novo item
-        item_match = item_pattern.match(line)
-        if item_match:
-            # Processar item anterior
-            if item_buffer:
-                process_item_buffer(item_buffer, current_area, areas)
-            
-            # Iniciar novo item
-            item_buffer = [line]
-        else:
-            # Continuar item atual
-            if item_buffer:
-                item_buffer.append(line)
+        if current_area and len(parte_clean) > 20:
+            areas_raw[current_area].append(parte_clean)
     
-    # Processar último item
-    if item_buffer:
-        process_item_buffer(item_buffer, current_area, areas)
+    # Processar cada área
+    areas = {}
+    for area_nome, textos in areas_raw.items():
+        texto_completo = ' '.join(textos)
+        conc, pend = processar_area(texto_completo)
+        areas[area_nome] = {
+            "concluidas": conc,
+            "pendentes": pend
+        }
     
     return areas
 
-def process_item_buffer(buffer, area, areas):
-    """Processa um item completo do buffer"""
-    if not buffer:
-        return
+def processar_area(texto_area):
+    """Processa itens de uma área"""
+    concluidas = []
+    pendentes = []
     
-    full_text = ' '.join(buffer)
+    itens = re.split(r'(?=\b\d{1,3}\s*[-\.\)])', texto_area)
     
-    # Extrair número do item
-    item_match = re.match(r'^\s*(\d+)', full_text)
-    if not item_match:
-        return
-    
-    item_num = int(item_match.group(1))
-    
-    # Verificar se tem data (indica concluído)
-    date_pattern = re.compile(r'\b\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4}\b')
-    has_date = bool(date_pattern.search(full_text))
-    
-    # Limpar o texto
-    desc = re.sub(r'^\s*\d+\s*[-\.\):]?\s*', '', full_text)
-    desc = desc.strip()
-    
-    if len(desc) > 10:  # Garantir que tem conteúdo mínimo
-        if has_date:
-            areas[area]["concluidas"].append((item_num, desc))
+    for item_text in itens:
+        item_text = item_text.strip()
+        if not item_text or len(item_text) < 10:
+            continue
+        
+        num_match = re.match(r'(\d{1,3})\s*[-\.\)]?\s*(.+)', item_text, re.DOTALL)
+        if not num_match:
+            continue
+        
+        num = int(num_match.group(1))
+        descricao = num_match.group(2).strip()
+        
+        date_match = re.search(r'\b(\d{1,2}/\d{1,2}/\d{4})\b', descricao)
+        
+        descricao_limpa = re.sub(r'\b\d{1,2}/\d{1,2}/\d{4}\b', '', descricao)
+        descricao_limpa = re.sub(r'\s+', ' ', descricao_limpa).strip()
+        
+        if len(descricao_limpa) > 300:
+            descricao_limpa = descricao_limpa[:297] + '...'
+        
+        if date_match:
+            data = date_match.group(1)
+            concluidas.append((num, descricao_limpa, data))
         else:
-            areas[area]["pendentes"].append((item_num, desc))
+            pendentes.append((num, descricao_limpa))
+    
+    return concluidas, pendentes
 
 def generate_excel(areas, scout_name, level):
-    """Gera planilha Excel com 3 abas"""
+    """Gera planilha Excel completa"""
     wb = Workbook()
     
-    # Estilos
     verde = PatternFill(start_color="C6E0B4", end_color="C6E0B4", fill_type="solid")
     amarelo = PatternFill(start_color="FFE699", end_color="FFE699", fill_type="solid")
     header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
@@ -258,7 +199,6 @@ def generate_excel(areas, scout_name, level):
     border = Border(left=Side(style='thin'), right=Side(style='thin'),
                    top=Side(style='thin'), bottom=Side(style='thin'))
     
-    # Calcular totais
     total_concluidas = sum(len(areas[area]["concluidas"]) for area in areas)
     total_pendentes = sum(len(areas[area]["pendentes"]) for area in areas)
     total_geral = total_concluidas + total_pendentes
@@ -319,9 +259,8 @@ def generate_excel(areas, scout_name, level):
     percentual = (total_concluidas / total_geral * 100) if total_geral > 0 else 0
     ws_resumo[f'A{row}'] = "📊 % Conclusão:"
     ws_resumo[f'B{row}'] = f"{percentual:.1f}%"
-    ws_resumo[f'B{row}'].font = Font(bold=True, size=12)
+    ws_resumo[f'B{row}'].font = Font(bold=True, size=12, color="00B050" if percentual >= 50 else "FF0000")
     
-    # Tabela por área
     row += 3
     headers = ['Área', 'Total', 'Concluídas', 'Pendentes', '%']
     for col, header in enumerate(headers, 1):
@@ -367,10 +306,11 @@ def generate_excel(areas, scout_name, level):
     ws_area = wb.create_sheet("Por Área")
     ws_area.column_dimensions['A'].width = 5
     ws_area.column_dimensions['B'].width = 80
+    ws_area.column_dimensions['C'].width = 15
     
     linha = 1
     for area_nome in areas:
-        ws_area.merge_cells(f'A{linha}:B{linha}')
+        ws_area.merge_cells(f'A{linha}:C{linha}')
         cell = ws_area[f'A{linha}']
         cell.value = f"{emojis[area_nome]} {area_nome.upper()}"
         cell.fill = area_fill
@@ -379,17 +319,27 @@ def generate_excel(areas, scout_name, level):
         linha += 1
         
         if areas[area_nome]["concluidas"]:
+            ws_area[f'A{linha}'] = "#"
+            ws_area[f'A{linha}'].fill = verde
+            ws_area[f'A{linha}'].font = bold_font
             ws_area[f'B{linha}'] = "✅ CONCLUÍDAS"
             ws_area[f'B{linha}'].fill = verde
             ws_area[f'B{linha}'].font = bold_font
+            ws_area[f'C{linha}'] = "Data"
+            ws_area[f'C{linha}'].fill = verde
+            ws_area[f'C{linha}'].font = bold_font
             linha += 1
             
-            for num, desc in areas[area_nome]["concluidas"]:
+            for num, desc, data in areas[area_nome]["concluidas"]:
                 ws_area.cell(row=linha, column=1, value=num).fill = verde
                 ws_area.cell(row=linha, column=2, value=desc).fill = verde
+                ws_area.cell(row=linha, column=3, value=data).fill = verde
                 linha += 1
         
         if areas[area_nome]["pendentes"]:
+            ws_area[f'A{linha}'] = "#"
+            ws_area[f'A{linha}'].fill = amarelo
+            ws_area[f'A{linha}'].font = bold_font
             ws_area[f'B{linha}'] = "⏳ PENDENTES"
             ws_area[f'B{linha}'].fill = amarelo
             ws_area[f'B{linha}'].font = bold_font
@@ -408,8 +358,9 @@ def generate_excel(areas, scout_name, level):
     ws_det.column_dimensions['B'].width = 18
     ws_det.column_dimensions['C'].width = 65
     ws_det.column_dimensions['D'].width = 12
+    ws_det.column_dimensions['E'].width = 15
     
-    headers_det = ['#', 'Área', 'Descrição', 'Status']
+    headers_det = ['#', 'Área', 'Descrição', 'Status', 'Data']
     for col, header in enumerate(headers_det, 1):
         cell = ws_det.cell(row=1, column=col, value=header)
         cell.fill = header_fill
@@ -419,11 +370,12 @@ def generate_excel(areas, scout_name, level):
     
     linha = 2
     for area_nome in areas:
-        for num, desc in areas[area_nome]["concluidas"]:
+        for num, desc, data in areas[area_nome]["concluidas"]:
             ws_det.cell(row=linha, column=1, value=num).fill = verde
             ws_det.cell(row=linha, column=2, value=area_nome).fill = verde
             ws_det.cell(row=linha, column=3, value=desc).fill = verde
             ws_det.cell(row=linha, column=4, value="✅").fill = verde
+            ws_det.cell(row=linha, column=5, value=data).fill = verde
             linha += 1
         
         for num, desc in areas[area_nome]["pendentes"]:
@@ -431,9 +383,9 @@ def generate_excel(areas, scout_name, level):
             ws_det.cell(row=linha, column=2, value=area_nome).fill = amarelo
             ws_det.cell(row=linha, column=3, value=desc).fill = amarelo
             ws_det.cell(row=linha, column=4, value="⏳").fill = amarelo
+            ws_det.cell(row=linha, column=5, value="").fill = amarelo
             linha += 1
     
-    # Salvar
     buffer = io.BytesIO()
     wb.save(buffer)
     buffer.seek(0)
@@ -452,7 +404,7 @@ with col1:
     
     if uploaded_file:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Imagem original", use_column_width=True)
+        st.image(image, caption="Imagem carregada", use_column_width=True)
 
 with col2:
     st.markdown("### 📝 Informações")
@@ -467,23 +419,20 @@ with col2:
         options=["Pista/Trilha", "Rumo/Travessia"]
     )
     
-    show_preview = st.checkbox("Mostrar imagem processada", value=False)
-    
     st.markdown("---")
     
     if st.button("🚀 GERAR VALIDAÇÃO", disabled=not (uploaded_file and scout_name)):
         with st.spinner("⏳ Processando..."):
             progress = st.progress(0)
             
-            st.info("📸 Processando imagem...")
-            text = extract_text_from_image(image, show_preview)
+            st.info("📸 Extraindo texto (OCR otimizado)...")
+            text = extract_text_from_image(image)
             progress.progress(33)
             
-            # Mostrar texto extraído (para debug)
-            with st.expander("📄 Ver texto extraído (para conferência)"):
+            with st.expander("📄 Ver texto extraído"):
                 st.text_area("Texto detectado:", text, height=200)
             
-            st.info("🔍 Identificando áreas...")
+            st.info("🔍 Processando áreas...")
             areas = identify_areas(text)
             progress.progress(66)
             
@@ -564,7 +513,7 @@ if st.session_state.processed:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666; padding: 1rem;'>
-    <p>🏕️ <b>Scout Progress Validator</b> v2.0</p>
-    <p>Tesseract OCR Otimizado | Sempre Alerta! ⚜️</p>
+    <p>🏕️ <b>Scout Progress Validator</b> v3.0 FINAL</p>
+    <p>Tesseract OCR + Processamento Avançado | Sempre Alerta! ⚜️</p>
 </div>
 """, unsafe_allow_html=True)
