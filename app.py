@@ -120,6 +120,122 @@ PROGRESSOES_PISTA_TRILHA = {
     108: {"area": "Espiritual", "desc": "Pesquisar sobre confissão religiosa diferente"}
 }
 
+PROGRESSOES_RUMO_TRAVESSIA = {
+    1: {"area": "Físico", "desc": "Participar de pelo menos 5 atividades ao ar livre da patrulha"},
+    2: {"area": "Físico", "desc": "Saber explicar mudanças no corpo e males de Anorexia/Bulimia"},
+    3: {"area": "Físico", "desc": "Participar de Jornada de Travessia"},
+    4: {"area": "Físico", "desc": "Reconhecer animais venenosos e peçonhentos"},
+    5: {"area": "Físico", "desc": "Manter Caixa de Primeiros Socorros em dia"},
+    6: {"area": "Físico", "desc": "Aplicar medidas gerais de segurança em acidentes"},
+    7: {"area": "Físico", "desc": "Saber agir em casos de hemorragia"},
+    8: {"area": "Físico", "desc": "Participar de limpeza do Canto de Patrulha"},
+    9: {"area": "Físico", "desc": "Propor e executar melhoria em local visitado"},
+    10: {"area": "Físico", "desc": "Demonstrar cuidado com vestuário e costurar distintivos"},
+    11: {"area": "Físico", "desc": "Montar mochila para acampamento de 5 dias"},
+    12: {"area": "Físico", "desc": "Preparar 5 refeições para patrulha"},
+    13: {"area": "Físico", "desc": "Montar cardápio de acampamento de fim de semana"},
+    14: {"area": "Físico", "desc": "Cozinhar ao ar livre sem utensílios (comida mateira)"},
+    15: {"area": "Físico", "desc": "Organizar atividades em calendário semanal"},
+    16: {"area": "Físico", "desc": "Classificar atividades segundo prioridades"},
+    17: {"area": "Físico", "desc": "Participar regularmente de atividades da patrulha"},
+    18: {"area": "Físico", "desc": "Desenvolver passatempo ou hobbie"},
+    19: {"area": "Físico", "desc": "Realizar regularmente atividade física ou esporte"},
+    20: {"area": "Físico", "desc": "Participar de jogos com outros Grupos Escoteiros"},
+    21: {"area": "Intelectual", "desc": "Realizar previsão do tempo por indícios naturais"},
+    22: {"area": "Intelectual", "desc": "Traçar e seguir sinais de pista (1km campo ou 2km urbano)"},
+    23: {"area": "Intelectual", "desc": "Orientar-se com recursos naturais, bússola e mapa"},
+    24: {"area": "Intelectual", "desc": "Ler pelo menos um capítulo de Escotismo para Rapazes"},
+    25: {"area": "Intelectual", "desc": "Participar de três Jogos Democráticos da Tropa"},
+    26: {"area": "Intelectual", "desc": "Participar da avaliação de atividade Regional"},
+    27: {"area": "Intelectual", "desc": "Explorar tema de interesse e compartilhar"},
+    28: {"area": "Intelectual", "desc": "Aplicar técnicas de medição de distância ou altura"},
+    29: {"area": "Intelectual", "desc": "Preparar materiais para representações artísticas"},
+    30: {"area": "Intelectual", "desc": "Organizar dia de jogos na casa de companheiro"},
+    31: {"area": "Intelectual", "desc": "Propor e colaborar na organização de atividades"},
+    32: {"area": "Intelectual", "desc": "Organizar atividade de divulgação no colégio"},
+    33: {"area": "Intelectual", "desc": "Aplicar especialidades em ações de serviço"},
+    34: {"area": "Intelectual", "desc": "Ajudar jovens na conquista de especialidades"},
+    35: {"area": "Intelectual", "desc": "Propor ideias de ações a serviço da comunidade"},
+    36: {"area": "Intelectual", "desc": "Ser responsável por canções em Fogo de Conselho"},
+    37: {"area": "Intelectual", "desc": "Organizar e participar de esquete"},
+    38: {"area": "Intelectual", "desc": "Ensinar canções tradicionais do Movimento"},
+    39: {"area": "Intelectual", "desc": "Construir Fogão Solar e utilizar em acampamento"},
+    40: {"area": "Intelectual", "desc": "Construir chuveiro de acampamento"},
+    41: {"area": "Intelectual", "desc": "Saber como funcionam serviços (telefone, internet, etc)"},
+    42: {"area": "Intelectual", "desc": "Enviar e receber mensagens em morse, semáfora ou libras"},
+    43: {"area": "Intelectual", "desc": "Desenhar croqui e participar de instalação de pioneirias"},
+    44: {"area": "Intelectual", "desc": "Aplicar conceitos de estruturas (cavaletes, encaixes)"},
+    45: {"area": "Intelectual", "desc": "Confeccionar Falcaças, Nó catau, Lais de guia"},
+    46: {"area": "Intelectual", "desc": "Construir e pernoitar em abrigo natural"},
+    47: {"area": "Caráter", "desc": "Propor objetivos para melhorar aspectos da vida"},
+    48: {"area": "Caráter", "desc": "Participar da avaliação de progressão pessoal"},
+    49: {"area": "Caráter", "desc": "Participar de reunião sobre aspectos da patrulha"},
+    50: {"area": "Caráter", "desc": "Ajudar companheiro em sua progressão pessoal"},
+    51: {"area": "Caráter", "desc": "Desempenhar cargo de patrulha por um ciclo"},
+    52: {"area": "Caráter", "desc": "Capacitar-se para desempenhar cargo na patrulha"},
+    53: {"area": "Caráter", "desc": "Avaliar desempenho nos cargos de patrulha"},
+    54: {"area": "Caráter", "desc": "Participar de festival de talentos"},
+    55: {"area": "Caráter", "desc": "Auxiliar companheiro a realizar Promessa Escoteira"},
+    56: {"area": "Caráter", "desc": "Avaliar vivência da Promessa e Lei na Patrulha"},
+    57: {"area": "Caráter", "desc": "Cantar Canção da Promessa com patrulha"},
+    58: {"area": "Caráter", "desc": "Conhecer história de Caio Viana Martins"},
+    59: {"area": "Caráter", "desc": "Realizar boas ações pessoais e com patrulha"},
+    60: {"area": "Caráter", "desc": "Organizar Oficina de Brinquedos e doar itens"},
+    61: {"area": "Caráter", "desc": "Conhecer e cantar canções para distintos momentos"},
+    62: {"area": "Caráter", "desc": "Criar vídeo de campanha promovendo Grupo Escoteiro"},
+    63: {"area": "Afetivo", "desc": "Demonstrar técnicas de resgate em afogamento"},
+    64: {"area": "Afetivo", "desc": "Ultrapassar obstáculo com cordas (falsa baiana, etc)"},
+    65: {"area": "Afetivo", "desc": "Fazer relato no Livro de Patrulha"},
+    66: {"area": "Afetivo", "desc": "Conhecer e aplicar princípios de boa comunicação"},
+    67: {"area": "Afetivo", "desc": "Participar de debates no Conselho e Assembleia"},
+    68: {"area": "Afetivo", "desc": "Visitar outro Grupo Escoteiro"},
+    69: {"area": "Afetivo", "desc": "Contribuir para manutenção do Espírito Escoteiro"},
+    70: {"area": "Afetivo", "desc": "Participar de mobilização para problema social"},
+    71: {"area": "Afetivo", "desc": "Saber a quem recorrer em casos de maus tratos"},
+    72: {"area": "Afetivo", "desc": "Ajudar companheiro a conquistar objetivo"},
+    73: {"area": "Afetivo", "desc": "Auxiliar patrulha a ter número equilibrado de meninas/meninos"},
+    74: {"area": "Afetivo", "desc": "Ir ao teatro ou cinema com patrulha"},
+    75: {"area": "Afetivo", "desc": "Realizar Boa Ação com membros da família"},
+    76: {"area": "Afetivo", "desc": "Realizar projeto de patrulha com ajuda de pais"},
+    77: {"area": "Afetivo", "desc": "Assumir responsabilidade de tarefa doméstica por 3 meses"},
+    78: {"area": "Social", "desc": "Propor atividades sobre Direitos Humanos"},
+    79: {"area": "Social", "desc": "Pesquisar sobre Violência Escolar e apresentar"},
+    80: {"area": "Social", "desc": "Participar de atividade sobre Direitos das Crianças"},
+    81: {"area": "Social", "desc": "Saber sobre Constituição e cantar Hino Nacional"},
+    82: {"area": "Social", "desc": "Visitar Câmara de Vereadores"},
+    83: {"area": "Social", "desc": "Saber diferenças entre poderes Legislativo/Executivo/Judiciário"},
+    84: {"area": "Social", "desc": "Assistir Assembleia do Grupo Escoteiro"},
+    85: {"area": "Social", "desc": "Participar de Assembleia de Tropa propondo melhorias"},
+    86: {"area": "Social", "desc": "Pesquisar sobre organização do Escotismo"},
+    87: {"area": "Social", "desc": "Apresentar estrutura de Grupo Escoteiro"},
+    88: {"area": "Social", "desc": "Participar de mutirão/projeto Insígnia/campanha comunitária"},
+    89: {"area": "Social", "desc": "Saber localização de serviços públicos"},
+    90: {"area": "Social", "desc": "Participar de Safári Fotográfico na cidade"},
+    91: {"area": "Social", "desc": "Identificar problemas da cidade e propor soluções"},
+    92: {"area": "Social", "desc": "Pesquisar lenda brasileira para Fogo de Conselho"},
+    93: {"area": "Social", "desc": "Aprender canções e danças do Brasil"},
+    94: {"area": "Social", "desc": "Confeccionar artesanato típico do Brasil"},
+    95: {"area": "Social", "desc": "Participar de atividade escoteira distrital/regional/nacional"},
+    96: {"area": "Social", "desc": "Pesquisar sobre história do Escotismo no Brasil"},
+    97: {"area": "Social", "desc": "Realizar atividade com patrulha de outro Grupo"},
+    98: {"area": "Social", "desc": "Participar de JOTI ou JOTA"},
+    99: {"area": "Social", "desc": "Manter contato com escoteiro de outro país/jantar/insígnia"},
+    100: {"area": "Social", "desc": "Visitar organização ambiental e pesquisar problemas"},
+    101: {"area": "Social", "desc": "Participar de projeto de conservação ambiental"},
+    102: {"area": "Social", "desc": "Identificar pegadas ou participar da Tribo da Terra"},
+    103: {"area": "Espiritual", "desc": "Participar regularmente de cultos religiosos"},
+    104: {"area": "Espiritual", "desc": "Auxiliar em celebração da comunidade religiosa"},
+    105: {"area": "Espiritual", "desc": "Ler pelo menos um livro sagrado"},
+    106: {"area": "Espiritual", "desc": "Realizar atividades de reflexão em acampamento"},
+    107: {"area": "Espiritual", "desc": "Projetar e construir lugar de oração em acampamento"},
+    108: {"area": "Espiritual", "desc": "Organizar momentos de oração com patrulha/família"},
+    109: {"area": "Espiritual", "desc": "Aplicar ensinamentos religiosos na vida"},
+    110: {"area": "Espiritual", "desc": "Avaliar ações de acordo com ensinamentos religiosos"},
+    111: {"area": "Espiritual", "desc": "Convidar patrulha para ações da comunidade religiosa"},
+    112: {"area": "Espiritual", "desc": "Discutir episódio sobre fanatismo religioso"},
+    113: {"area": "Espiritual", "desc": "Confeccionar calendário de festividades religiosas"}
+}
+
 EMOJIS_AREAS = {
     "Físico": "💪",
     "Intelectual": "🧠",
@@ -155,36 +271,72 @@ if 'stats' not in st.session_state:
     st.session_state.stats = None
 
 # OCR Simplificado
-def ocr_simplificado(image):
-    """Detecta apenas números e checkmarks"""
-    img_gray = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
+def ocr_simplificado(image, level):
+    """Detecta números e círculos verdes (concluídas)"""
+    max_item = 108 if level == "Pista/Trilha" else 113
+    
+    img_array = np.array(image)
+    
+    # Detectar círculos VERDES (RGB aproximadamente 50-150, 180-255, 50-150)
+    verde_lower = np.array([30, 150, 30])
+    verde_upper = np.array([150, 255, 150])
+    mascara_verde = cv2.inRange(img_array, verde_lower, verde_upper)
+    
+    # OCR em escala de cinza para números
+    img_gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
     _, img_thresh = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
     
-    text = pytesseract.image_to_string(img_thresh, config='--psm 6')
+    text = pytesseract.image_to_string(img_thresh, config='--psm 6 -l por')
     
-    # Detectar concluídas (com check)
-    concluidas_matches = re.findall(r'[✓✔☑✅🗹]\s*(\d+)', text)
-    concluidas = [int(x) for x in concluidas_matches if 1 <= int(x) <= 108]
-    
-    # Todos os números
+    # Extrair todos os números
     todos_matches = re.findall(r'\b(\d{1,3})\b', text)
-    todos = [int(x) for x in todos_matches if 1 <= int(x) <= 108]
+    todos = [int(x) for x in todos_matches if 1 <= int(x) <= max_item]
+    todos = sorted(set(todos))
     
-    # Pendentes
-    pendentes = sorted(set(todos) - set(concluidas))
+    # Detectar quais têm círculo verde próximo
+    concluidas = []
+    
+    # Processar cada linha da imagem
+    linhas = text.split('\n')
+    y_pos = 0
+    height, width = img_array.shape[:2]
+    pixels_por_linha = height // max(len(linhas), 1)
+    
+    for i, linha in enumerate(linhas):
+        # Procurar número na linha
+        num_match = re.search(r'\b(\d{1,3})\b', linha)
+        if num_match:
+            num = int(num_match.group(1))
+            if 1 <= num <= max_item:
+                # Verificar se há verde nesta região (esquerda da linha)
+                y_start = max(0, i * pixels_por_linha)
+                y_end = min(height, (i + 1) * pixels_por_linha)
+                x_end = min(width, 100)  # Primeiros 100 pixels (onde fica o círculo)
+                
+                regiao_verde = mascara_verde[y_start:y_end, 0:x_end]
+                pixels_verdes = np.sum(regiao_verde > 0)
+                
+                # Se tem bastante verde, está concluída
+                if pixels_verdes > 50:  # Threshold ajustável
+                    concluidas.append(num)
+    
     concluidas = sorted(set(concluidas))
+    pendentes = sorted(set(todos) - set(concluidas))
     
-    # Datas
+    # Datas (manter detecção original)
     datas = {}
     for match in re.finditer(r'(\d+)[^\d]*(\d{2}/\d{2}/\d{4})', text):
         num, data = match.groups()
-        if 1 <= int(num) <= 108:
+        if 1 <= int(num) <= max_item:
             datas[int(num)] = data
     
     return {'concluidas': concluidas, 'pendentes': pendentes, 'datas': datas}
 
 # Gerar planilha simplificada
 def gerar_planilha_simplificada(concluidas, pendentes, scout_name, level, datas={}):
+    # Escolher banco de dados correto
+    progressoes = PROGRESSOES_PISTA_TRILHA if level == "Pista/Trilha" else PROGRESSOES_RUMO_TRAVESSIA
+    
     wb = Workbook()
     ws = wb.active
     ws.title = "Progressões"
@@ -229,7 +381,7 @@ def gerar_planilha_simplificada(concluidas, pendentes, scout_name, level, datas=
     
     # Concluídas
     for num in concluidas:
-        info = PROGRESSOES_PISTA_TRILHA.get(num, {"area": "?", "desc": "?"})
+        info = progressoes.get(num, {"area": "?", "desc": "?"})
         ws.cell(row=row, column=1, value=num).fill = verde
         ws.cell(row=row, column=2, value=f"{EMOJIS_AREAS.get(info['area'], '')} {info['area']}").fill = verde
         ws.cell(row=row, column=3, value=info['desc']).fill = verde
@@ -239,7 +391,7 @@ def gerar_planilha_simplificada(concluidas, pendentes, scout_name, level, datas=
     
     # Pendentes
     for num in pendentes:
-        info = PROGRESSOES_PISTA_TRILHA.get(num, {"area": "?", "desc": "?"})
+        info = progressoes.get(num, {"area": "?", "desc": "?"})
         ws.cell(row=row, column=1, value=num).fill = amarelo
         ws.cell(row=row, column=2, value=f"{EMOJIS_AREAS.get(info['area'], '')} {info['area']}").fill = amarelo
         ws.cell(row=row, column=3, value=info['desc']).fill = amarelo
@@ -286,7 +438,7 @@ with col2:
             
             if modo_ocr == "OCR Simplificado":
                 st.info("🎯 Modo Simplificado: Detectando números e checks...")
-                resultado = ocr_simplificado(image)
+                resultado = ocr_simplificado(image, level)
                 
                 with st.expander("🔍 Detecção OCR"):
                     st.write(f"✅ Concluídas ({len(resultado['concluidas'])}): {resultado['concluidas'][:20]}{'...' if len(resultado['concluidas']) > 20 else ''}")
