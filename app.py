@@ -104,8 +104,14 @@ def post_process_text(text):
     
     return text
 
-def identify_areas(text):
+def identify_areas(text, level):
     """Identifica e processa áreas de desenvolvimento"""
+    # Definir quantidade esperada por nível
+    ITENS_ESPERADOS = {
+        "Pista/Trilha": 108,
+        "Rumo/Travessia": 113
+    }
+    
     areas_raw = {
         "Físico": [],
         "Intelectual": [],
@@ -139,20 +145,33 @@ def identify_areas(text):
         if current_area and len(parte_clean) > 20:
             areas_raw[current_area].append(parte_clean)
     
-    # Processar cada área
+    # Processar cada área E REMOVER DUPLICATAS
     areas = {}
+    itens_processados = set()
+    
     for area_nome, textos in areas_raw.items():
         texto_completo = ' '.join(textos)
-        conc, pend = processar_area(texto_completo)
+        conc, pend = processar_area(texto_completo, itens_processados)
         areas[area_nome] = {
             "concluidas": conc,
             "pendentes": pend
         }
     
-    return areas
+    # Validação
+    total_detectado = len(itens_processados)
+    esperado = ITENS_ESPERADOS.get(level, 108)
+    
+    validacao = {
+        "esperado": esperado,
+        "detectado": total_detectado,
+        "diferenca": total_detectado - esperado,
+        "percentual": (total_detectado / esperado * 100) if esperado > 0 else 0
+    }
+    
+    return areas, validacao
 
-def processar_area(texto_area):
-    """Processa itens de uma área"""
+def processar_area(texto_area, itens_processados):
+    """Processa itens de uma área, evitando duplicatas"""
     concluidas = []
     pendentes = []
     
@@ -168,6 +187,13 @@ def processar_area(texto_area):
             continue
         
         num = int(num_match.group(1))
+        
+        # ANTI-DUPLICATA: Pular se já foi processado
+        if num in itens_processados:
+            continue
+        
+        itens_processados.add(num)
+        
         descricao = num_match.group(2).strip()
         
         date_match = re.search(r'\b(\d{1,2}/\d{1,2}/\d{4})\b', descricao)
@@ -433,7 +459,7 @@ with col2:
                 st.text_area("Texto detectado:", text, height=200)
             
             st.info("🔍 Processando áreas...")
-            areas = identify_areas(text)
+            areas, validacao = identify_areas(text, level)
             progress.progress(66)
             
             st.info("📊 Gerando planilha...")
@@ -452,7 +478,8 @@ with col2:
                 'concluidas': concluidas,
                 'pendentes': pendentes,
                 'percentual': percentual,
-                'areas': areas
+                'areas': areas,
+                'validacao': validacao
             }
             st.session_state.filename = filename
 
@@ -461,6 +488,20 @@ if st.session_state.processed:
     st.markdown("## 🎉 Validação Concluída!")
     
     stats = st.session_state.stats
+    validacao = stats.get('validacao', {})
+    
+    # Alerta de validação
+    if validacao:
+        esperado = validacao['esperado']
+        detectado = validacao['detectado']
+        diferenca = validacao['diferenca']
+        
+        if diferenca == 0:
+            st.success(f"✅ Perfeito! {detectado} itens detectados (esperado: {esperado})")
+        elif abs(diferenca) <= 2:
+            st.warning(f"⚠️ Detectados {detectado} itens de {esperado} esperados (diferença: {diferenca:+d})")
+        else:
+            st.error(f"❌ Detectados {detectado} itens, mas esperado {esperado} (diferença: {diferenca:+d})")
     
     col1, col2, col3, col4 = st.columns(4)
     
