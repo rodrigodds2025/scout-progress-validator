@@ -273,97 +273,112 @@ if 'stats' not in st.session_state:
 # OCR Simplificado - Detecção por Círculos Verdes
 def ocr_simplificado(image, level):
     """Detecta círculos verdes e números próximos"""
-    max_item = 108 if level == "Pista/Trilha" else 113
-    
-    img_array = np.array(image)
-    height, width = img_array.shape[:2]
-    
-    # 1. DETECTAR CÍRCULOS VERDES
-    # Converter para HSV (melhor para detectar cores)
-    img_hsv = cv2.cvtColor(img_array, cv2.COLOR_RGB2HSV)
-    
-    # Faixa de verde em HSV (mais preciso que RGB)
-    # Verde: H=35-85, S=50-255, V=50-255
-    lower_green = np.array([35, 50, 50])
-    upper_green = np.array([85, 255, 255])
-    
-    mascara_verde = cv2.inRange(img_hsv, lower_green, upper_green)
-    
-    # Encontrar contornos dos círculos verdes
-    contours, _ = cv2.findContours(mascara_verde, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # Filtrar contornos que parecem círculos
-    circulos_verdes = []
-    for contour in contours:
-        area = cv2.contourArea(contour)
-        if 20 < area < 500:  # Tamanho razoável de círculo
-            x, y, w, h = cv2.boundingRect(contour)
-            aspect_ratio = float(w) / h if h > 0 else 0
-            
-            # Círculo tem aspect ratio próximo de 1
-            if 0.7 < aspect_ratio < 1.3:
-                # Centro do círculo
-                cx = x + w // 2
-                cy = y + h // 2
-                circulos_verdes.append((cx, cy, y))
-    
-    # 2. EXTRAIR NÚMEROS COM OCR
-    img_gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-    
-    # OCR na imagem completa para pegar todos os números
-    text_completo = pytesseract.image_to_string(img_gray, config='--psm 6 -l por')
-    
-    # Extrair números e suas posições aproximadas
-    linhas = text_completo.split('\n')
-    
-    # Mapear número -> posição Y aproximada
-    numeros_posicoes = []
-    pixels_por_linha = height // max(len(linhas), 1)
-    
-    for i, linha in enumerate(linhas):
-        # Procurar padrão: "número - descrição" ou "número. descrição"
-        match = re.match(r'^\s*(\d{1,3})\s*[-\.\)]', linha)
-        if match:
-            num = int(match.group(1))
+    try:
+        max_item = 108 if level == "Pista/Trilha" else 113
+        
+        img_array = np.array(image)
+        height, width = img_array.shape[:2]
+        
+        # 1. DETECTAR CÍRCULOS VERDES
+        # Converter para HSV (melhor para detectar cores)
+        img_hsv = cv2.cvtColor(img_array, cv2.COLOR_RGB2HSV)
+        
+        # Faixa de verde em HSV (mais preciso que RGB)
+        # Verde: H=35-85, S=50-255, V=50-255
+        lower_green = np.array([35, 50, 50])
+        upper_green = np.array([85, 255, 255])
+        
+        mascara_verde = cv2.inRange(img_hsv, lower_green, upper_green)
+        
+        # Encontrar contornos dos círculos verdes
+        contours, _ = cv2.findContours(mascara_verde, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        # Filtrar contornos que parecem círculos
+        circulos_verdes = []
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if 20 < area < 500:  # Tamanho razoável de círculo
+                x, y, w, h = cv2.boundingRect(contour)
+                aspect_ratio = float(w) / h if h > 0 else 0
+                
+                # Círculo tem aspect ratio próximo de 1
+                if 0.7 < aspect_ratio < 1.3:
+                    # Centro do círculo
+                    cx = x + w // 2
+                    cy = y + h // 2
+                    circulos_verdes.append((cx, cy, y))
+        
+        # 2. EXTRAIR NÚMEROS COM OCR
+        img_gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
+        
+        # OCR na imagem completa para pegar todos os números
+        text_completo = pytesseract.image_to_string(img_gray, config='--psm 6 -l por')
+        
+        # Extrair números e suas posições aproximadas
+        linhas = text_completo.split('\n')
+        
+        # Mapear número -> posição Y aproximada
+        numeros_posicoes = []
+        pixels_por_linha = height // max(len(linhas), 1)
+        
+        for i, linha in enumerate(linhas):
+            # Procurar padrão: "número - descrição" ou "número. descrição"
+            match = re.match(r'^\s*(\d{1,3})\s*[-\.\)]', linha)
+            if match:
+                num = int(match.group(1))
+                if 1 <= num <= max_item:
+                    y_pos = i * pixels_por_linha + pixels_por_linha // 2
+                    numeros_posicoes.append((num, y_pos))
+        
+        # 3. ASSOCIAR CÍRCULOS VERDES COM NÚMEROS
+        concluidas = []
+        
+        for num, num_y in numeros_posicoes:
+            # Verificar se há círculo verde próximo (mesma altura ±40 pixels)
+            for cx, cy, circle_y in circulos_verdes:
+                if abs(num_y - circle_y) < 40:  # Tolerância de 40 pixels
+                    concluidas.append(num)
+                    break
+        
+        # Todos os números detectados
+        todos = [num for num, _ in numeros_posicoes]
+        
+        # Pendentes = todos - concluídas
+        concluidas = sorted(set(concluidas))
+        pendentes = sorted(set(todos) - set(concluidas))
+        
+        # 4. DETECTAR DATAS (opcional)
+        datas = {}
+        for match in re.finditer(r'(\d+)[^\d]*(\d{2}/\d{2}/\d{4})', text_completo):
+            num, data = match.groups()
+            num = int(num)
             if 1 <= num <= max_item:
-                y_pos = i * pixels_por_linha + pixels_por_linha // 2
-                numeros_posicoes.append((num, y_pos))
-    
-    # 3. ASSOCIAR CÍRCULOS VERDES COM NÚMEROS
-    concluidas = []
-    
-    for num, num_y in numeros_posicoes:
-        # Verificar se há círculo verde próximo (mesma altura ±30 pixels)
-        for cx, cy, circle_y in circulos_verdes:
-            if abs(num_y - circle_y) < 40:  # Tolerância de 40 pixels
-                concluidas.append(num)
-                break
-    
-    # Todos os números detectados
-    todos = [num for num, _ in numeros_posicoes]
-    
-    # Pendentes = todos - concluídas
-    concluidas = sorted(set(concluidas))
-    pendentes = sorted(set(todos) - set(concluidas))
-    
-    # 4. DETECTAR DATAS (opcional)
-    datas = {}
-    for match in re.finditer(r'(\d+)[^\d]*(\d{2}/\d{2}/\d{4})', text_completo):
-        num, data = match.groups()
-        num = int(num)
-        if 1 <= num <= max_item:
-            datas[num] = data
-    
-    return {
-        'concluidas': concluidas, 
-        'pendentes': pendentes, 
-        'datas': datas,
-        'debug': {
-            'circulos_encontrados': len(circulos_verdes),
-            'numeros_detectados': len(todos),
-            'total_esperado': max_item
+                datas[num] = data
+        
+        return {
+            'concluidas': concluidas, 
+            'pendentes': pendentes, 
+            'datas': datas,
+            'debug': {
+                'circulos_encontrados': len(circulos_verdes),
+                'numeros_detectados': len(todos),
+                'total_esperado': max_item,
+                'erro': None
+            }
         }
-    }
+    except Exception as e:
+        # Se der erro, retorna vazio com info do erro
+        return {
+            'concluidas': [],
+            'pendentes': [],
+            'datas': {},
+            'debug': {
+                'circulos_encontrados': 0,
+                'numeros_detectados': 0,
+                'total_esperado': max_item,
+                'erro': str(e)
+            }
+        }
 
 # Gerar planilha simplificada
 def gerar_planilha_simplificada(concluidas, pendentes, scout_name, level, datas={}):
@@ -474,9 +489,12 @@ with col2:
                 resultado = ocr_simplificado(image, level)
                 
                 with st.expander("🔍 Detecção OCR"):
-                    st.write(f"🎯 Círculos verdes encontrados: {resultado.get('debug', {}).get('circulos_encontrados', '?')}")
-                    st.write(f"📋 Números detectados: {resultado.get('debug', {}).get('numeros_detectados', '?')}")
-                    st.write(f"📊 Esperado: {resultado.get('debug', {}).get('total_esperado', '?')}")
+                    debug = resultado.get('debug', {})
+                    if debug.get('erro'):
+                        st.error(f"❌ ERRO: {debug['erro']}")
+                    st.write(f"🎯 Círculos verdes encontrados: {debug.get('circulos_encontrados', '?')}")
+                    st.write(f"📋 Números detectados: {debug.get('numeros_detectados', '?')}")
+                    st.write(f"📊 Esperado: {debug.get('total_esperado', '?')}")
                     st.write(f"✅ Concluídas ({len(resultado['concluidas'])}): {resultado['concluidas'][:20]}{'...' if len(resultado['concluidas']) > 20 else ''}")
                     st.write(f"⏳ Pendentes ({len(resultado['pendentes'])}): {resultado['pendentes'][:20]}{'...' if len(resultado['pendentes']) > 20 else ''}")
                 
