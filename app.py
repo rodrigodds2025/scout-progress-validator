@@ -161,18 +161,11 @@ def identify_areas(text, level):
     total_detectado = len(itens_processados)
     esperado = ITENS_ESPERADOS.get(level, 108)
     
-    # Detectar itens faltando
-    esperados_set = set(range(1, esperado + 1))
-    itens_faltando = sorted(esperados_set - itens_processados)
-    itens_extras = sorted(itens_processados - esperados_set)
-    
     validacao = {
         "esperado": esperado,
         "detectado": total_detectado,
         "diferenca": total_detectado - esperado,
-        "percentual": (total_detectado / esperado * 100) if esperado > 0 else 0,
-        "faltando": itens_faltando,
-        "extras": itens_extras
+        "percentual": (total_detectado / esperado * 100) if esperado > 0 else 0
     }
     
     return areas, validacao
@@ -502,34 +495,13 @@ if st.session_state.processed:
         esperado = validacao['esperado']
         detectado = validacao['detectado']
         diferenca = validacao['diferenca']
-        faltando = validacao.get('faltando', [])
-        extras = validacao.get('extras', [])
         
         if diferenca == 0:
             st.success(f"✅ Perfeito! {detectado} itens detectados (esperado: {esperado})")
         elif abs(diferenca) <= 2:
-            msg = f"⚠️ Detectados {detectado} itens de {esperado} esperados (diferença: {diferenca:+d})"
-            if faltando:
-                if len(faltando) <= 5:
-                    msg += f"\n\n📋 Itens faltando: {', '.join(map(str, faltando))}"
-                else:
-                    msg += f"\n\n📋 {len(faltando)} itens faltando: {', '.join(map(str, faltando[:5]))}..."
-            if extras:
-                if len(extras) <= 5:
-                    msg += f"\n\n⚠️ Itens extras detectados: {', '.join(map(str, extras))}"
-            st.warning(msg)
+            st.warning(f"⚠️ Detectados {detectado} itens de {esperado} esperados (diferença: {diferenca:+d})")
         else:
-            msg = f"❌ Detectados {detectado} itens, mas esperado {esperado} (diferença: {diferenca:+d})"
-            if faltando:
-                if len(faltando) <= 10:
-                    msg += f"\n\n📋 Itens faltando: {', '.join(map(str, faltando))}"
-                else:
-                    msg += f"\n\n📋 {len(faltando)} itens faltando: {', '.join(map(str, faltando[:10]))}..."
-            if extras:
-                if len(extras) <= 5:
-                    msg += f"\n\n⚠️ Itens extras: {', '.join(map(str, extras))}"
-            msg += "\n\n💡 Sugestão: Verifique a qualidade da imagem e tente novamente."
-            st.error(msg)
+            st.error(f"❌ Detectados {detectado} itens, mas esperado {esperado} (diferença: {diferenca:+d})")
     
     col1, col2, col3, col4 = st.columns(4)
     
